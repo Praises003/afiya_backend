@@ -74,3 +74,61 @@ export const verifyBatch = async (req, res) => {
 
 
 
+
+const MANUFACTURER_TOPIC_ID = process.env.PHARMA_TOPIC_ID || "0.0.7061841"; 
+/**
+ * Verify a manufacturer exists on the Hedera manufacturer topic.
+ * @param {string} query - company name or license number to search for
+ * @returns {Promise<{success: boolean, found: boolean, data: object|null}>}
+ */
+export const verifyManufacturerHedera = async (query) => {
+  if (!MANUFACTURER_TOPIC_ID) {
+    console.error("MANUFACTURER_TOPIC_ID is not set in environment");
+    return { success: false, found: false, data: null };
+  }
+
+  const url = `https://testnet.mirrornode.hedera.com/api/v1/topics/${MANUFACTURER_TOPIC_ID}/messages?limit=100`;
+
+  try {
+    const resp = await axios.get(url);
+    const messages = resp.data?.messages || [];
+
+    const normalizedQuery = String(query).trim().toLowerCase();
+
+    for (const msg of messages) {
+      // decode base64 message payload
+      const text = Buffer.from(msg.message, "base64").toString("utf8");
+
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (err) {
+        // not JSON — skip
+        continue;
+      }
+
+      // Normalise fields for comparison
+      const name = (json.name || json.companyName || json.company || "").toString().toLowerCase();
+      const license = (json.licenseNumber || json.license || json.licenseNo || "").toString().toLowerCase();
+
+      // Match either full license (exact) or name (contains)
+      if (license && license === normalizedQuery) {
+        return { success: true, found: true, data: json };
+      }
+
+      if (name && name.includes(normalizedQuery)) {
+        return { success: true, found: true, data: json };
+      }
+    }
+
+    // Not found
+    return { success: true, found: false, data: null };
+  } catch (error) {
+    console.error("❌ Error verifying manufacturer on Hedera:", error.message || error);
+    return { success: false, found: false, data: null };
+  }
+};
+
+
+
+

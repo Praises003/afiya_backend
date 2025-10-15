@@ -1,5 +1,6 @@
 import Manufacturer from "../models/manufacturerModel.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { publishVerifiedCompany } from "../services/hederaService.js"; // make sure this is set up
 
 /**
@@ -67,5 +68,41 @@ export const getManufacturers = async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching manufacturers:", error);
     res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+// LOGIN MANUFACTURER
+export const loginManufacturer = async (req, res) => {
+  try {
+    const { licenseNumber, password } = req.body;
+
+    const manufacturer = await Manufacturer.findOne({ licenseNumber });
+    if (!manufacturer)
+      return res.status(404).json({ success: false, message: "Manufacturer not found" });
+
+    const validPassword = await bcrypt.compare(password, manufacturer.password);
+    if (!validPassword)
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: manufacturer._id, licenseNumber: manufacturer.licenseNumber },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      token,
+      data: {
+        id: manufacturer._id,
+        name: manufacturer.name,
+        verified: manufacturer.verified,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Login error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
