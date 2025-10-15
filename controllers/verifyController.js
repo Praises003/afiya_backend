@@ -34,28 +34,53 @@ const verifyBatchHedera = async (batchId) => {
 };
 
 
-// Controller
-export const verifyBatch = async (req, res) => {
+// // Controller
+// export const verifyBatch = async (req, res) => {
+//   try {
+//     const { batchId } = req.params;
+
+//     const batchData = await verifyBatchHedera(batchId);
+
+//     if (!batchData) {
+//       return res.status(404).json({
+//         success: false,
+//         found: false,
+//         message: "Batch not found on Hedera"
+//       });
+//     }
+
+//     return res.json({
+//       success: true,
+//       found: true,
+//       data: batchData
+//     });
+//   } catch (error) {
+//     console.error("Hedera verification error:", error);
+//     return res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
+
+
+
+// 1️⃣ Internal helper — callable from WhatsApp controller
+export async function verifyBatchId(batchId) {
   try {
-    const { batchId } = req.params;
-
-    const batchData = await verifyBatchHedera(batchId);
-
-    if (!batchData) {
-      return res.status(404).json({
-        success: false,
-        found: false,
-        message: "Batch not found on Hedera"
-      });
-    }
-
-    return res.json({
-      success: true,
-      found: true,
-      data: batchData
-    });
+    const result = await verifyBatchHedera(batchId);
+    return result; // { success, found, data }
   } catch (error) {
     console.error("Hedera verification error:", error);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return { success: false, found: false };
   }
-};
+}
+
+// 2️⃣ Route handler — Express version
+export async function verifyBatch(req, res) {
+  try {
+    const { batchId } = req.body; // ✅ from POST body, not params
+    const result = await verifyBatchHedera(batchId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error verifying batch:", error);
+    res.status(500).json({ success: false, message: "Verification failed" });
+  }
+}
