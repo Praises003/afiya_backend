@@ -40,8 +40,7 @@ export const publishMessage = async (payload) => {
 
 
 // Helper function to query Hedera mirror node
-const TOPIC_ID = process.env.HEDERA_TOPIC_ID;
-
+const TOPIC_ID = process.env.TOPIC_ID;
 // Verify a drug batch on Hedera
 export const verifyBatchHedera = async (batchId) => {
   const url = `https://testnet.mirrornode.hedera.com/api/v1/topics/${TOPIC_ID}/messages?limit=50`;

@@ -2,6 +2,7 @@ import axios from "axios";
 import Tesseract from "tesseract.js";
 import { verifyBatch } from "./verifyController.js"; // if using internal function
 import { verifyBatchHedera } from "../services/hederaService.js"; // if using service function
+import twilio from "twilio";
 
 // WhatsApp Webhook Controller
 export const whatsappWebhook = async (req, res) => {
@@ -116,15 +117,23 @@ export async function processImage(mediaUrl) {
 // ----------------------
 // Send Message via Twilio API
 // ----------------------
-async function sendWhatsAppMessage(to, message) {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const from = "whatsapp:+14155238886"; // Twilio sandbox number
 
-  const twilio = require("twilio")(accountSid, authToken);
-  await twilio.messages.create({
-    from,
-    to,
-    body: message,
-  });
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const from = "whatsapp:+14155238886"; // Twilio sandbox number
+
+const client = twilio(accountSid, authToken);
+
+export async function sendWhatsAppMessage(to, message) {
+  try {
+    await client.messages.create({
+      from,
+      to,
+      body: message,
+    });
+    console.log(`✅ WhatsApp message sent to ${to}`);
+  } catch (error) {
+    console.error("❌ Error sending WhatsApp message:", error);
+  }
 }
