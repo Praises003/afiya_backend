@@ -60,6 +60,10 @@ export async function processImage(mediaUrl) {
     // 1️⃣ Download the image from WhatsApp
     const { data: imageBuffer } = await axios.get(mediaUrl, {
       responseType: "arraybuffer",
+      auth: {
+        username: process.env.TWILIO_ACCOUNT_SID,
+      password: process.env.TWILIO_AUTH_TOKEN,
+  },
     });
 
     // 2️⃣ Run OCR
