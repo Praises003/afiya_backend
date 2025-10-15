@@ -7,9 +7,9 @@ import twilio from "twilio";
 // WhatsApp Webhook Controller
 export const whatsappWebhook = async (req, res) => {
   try {
-    const message = req.body.Body?.trim(); // text content (if any)
+    const message = req.body.Body?.trim(); 
     const from = req.body.From;
-    const mediaUrl = req.body.MediaUrl0; // only one image for simplicity
+    const mediaUrl = req.body.MediaUrl0; 
 
     console.log("Incoming message from:", from);
     console.log(" message :", message);
@@ -22,9 +22,23 @@ export const whatsappWebhook = async (req, res) => {
       reply = await processImage(mediaUrl);
     } else if (message) {
       // Case: user sent a text → Treat it as batch ID
-      reply = await verifyBatchHedera(message);
+      const result = await verifyBatchHedera(message);
+
+      if (!result.success) {
+        reply = "⚠️ Error verifying batch on Hedera. Please try again.";
+      } else if (!result.found) {
+        reply = `❌ No record found for batch ID *${message}* on Hedera.`;
+      } else {
+        const data = result.data;
+        reply = `✅ *Batch Verified!*\n\n📦 Batch ID: ${data.batchId}\n💊 Drug: ${data.drugName}\n🏭 Manufacturer: ${data.manufacturer}\n⏳ Expiry Date: ${data.expiryDate}`;
+      }
     } else {
-      reply = "👋 Hello! Please send a *photo* of your product batch number to verify authenticity.";
+      reply = "👋 Hello! Please send a *photo* or *batch ID* to verify authenticity.";
+    }
+
+    // Prevent sending empty replies
+    if (!reply || reply.trim() === "") {
+      reply = "⚠️ Could not process your request. Please try again.";
     }
 
     // Send the reply back to WhatsApp via Twilio
@@ -36,7 +50,6 @@ export const whatsappWebhook = async (req, res) => {
     res.status(500).send("Error processing WhatsApp message");
   }
 };
-
 // ----------------------
 // OCR Function
 // ----------------------
