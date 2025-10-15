@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import topicRoutes from "./routes/topicRoutes.js";
 import verifyRoutes from "./routes/verifyRoutes.js";
 import whatsappRoutes from "./routes/whatsappRoutes.js";
+import manufacturerRoutes from "./routes/manufacturerRoutes.js";
 
 
 dotenv.config();
@@ -16,6 +17,7 @@ app.use("/api/topic", topicRoutes);
 app.use("/api/register-drug", topicRoutes);
 app.use("/api/verify", verifyRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
+app.use("/api/manufacturers", manufacturerRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {

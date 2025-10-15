@@ -15,7 +15,7 @@ async function main() {
     client.setDefaultMaxTransactionFee(new Hbar(2));
 
     const tx = new TopicCreateTransaction()
-      .setTopicMemo("Drug Verification Topic")
+      .setTopicMemo("Pharma Company Verification")
       .freezeWith(client);
 
     const signedTx = await tx.sign(

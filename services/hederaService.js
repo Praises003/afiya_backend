@@ -34,6 +34,38 @@ export const publishMessage = async (payload) => {
 };
 
 
+export const publishVerifiedCompany = async (companyData) => {
+  try {
+    const message = JSON.stringify({
+      type: "Pharma Company Verification",
+      companyName: companyData.name,
+      licenseNumber: companyData.licenseNumber,
+      address: companyData.address,
+      email: companyData.email || null,
+      verifiedAt: new Date().toISOString(),
+    });
+
+    const tx = await new TopicMessageSubmitTransaction({
+      topicId: process.env.PHARMA_TOPIC_ID,
+      message,
+    })
+      .freezeWith(client)
+      .sign(privateKey);
+
+    const submitResponse = await tx.execute(client);
+    const receipt = await submitResponse.getReceipt(client);
+
+    console.log("✅ Company verification submitted!");
+    console.log("🆔 Topic ID:", process.env.PHARMA_TOPIC_ID);
+    console.log("📜 Transaction Status:", receipt.status.toString());
+
+    return receipt;
+  } catch (error) {
+    console.error("❌ Error publishing company verification:", error);
+    throw error;
+  }
+};
+
 
 
 
