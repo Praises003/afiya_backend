@@ -1,6 +1,7 @@
 import axios from "axios";
 import Tesseract from "tesseract.js";
 import { verifyBatch } from "./verifyController.js"; // if using internal function
+import { verifyBatchHedera } from "../services/hederaService.js"; // if using service function
 
 // WhatsApp Webhook Controller
 export const whatsappWebhook = async (req, res) => {
@@ -10,6 +11,7 @@ export const whatsappWebhook = async (req, res) => {
     const mediaUrl = req.body.MediaUrl0; // only one image for simplicity
 
     console.log("Incoming message from:", from);
+    console.log(" message :", message);
 
     let reply = "";
 
@@ -19,7 +21,7 @@ export const whatsappWebhook = async (req, res) => {
       reply = await processImage(mediaUrl);
     } else if (message) {
       // Case: user sent a text → Treat it as batch ID
-      reply = await verifyBatch(message);
+      reply = await verifyBatchHedera(message);
     } else {
       reply = "👋 Hello! Please send a *photo* of your product batch number to verify authenticity.";
     }
@@ -72,7 +74,7 @@ export async function processImage(mediaUrl) {
       console.log("Detected batch ID:", batchId);
 
       // 6️⃣ Verify via Hedera
-      const verification = await verifyBatch(batchId);
+      const verification = await verifyBatchHedera(batchId);
 
       // 7️⃣ Generate a user-friendly WhatsApp response
       if (verification?.success && verification?.found) {

@@ -3,6 +3,7 @@ import {
   TopicMessageSubmitTransaction,
   PrivateKey
 } from "@hashgraph/sdk";
+import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -36,9 +37,12 @@ export const publishMessage = async (payload) => {
 
 
 
-const TOPIC_ID = process.env.TOPIC_ID;
+
 
 // Helper function to query Hedera mirror node
+const TOPIC_ID = process.env.HEDERA_TOPIC_ID;
+
+// Verify a drug batch on Hedera
 export const verifyBatchHedera = async (batchId) => {
   const url = `https://testnet.mirrornode.hedera.com/api/v1/topics/${TOPIC_ID}/messages?limit=50`;
 
@@ -47,22 +51,33 @@ export const verifyBatchHedera = async (batchId) => {
 
     for (const msg of response.data.messages) {
       const text = Buffer.from(msg.message, "base64").toString("utf8");
-      let decoded;
+      let json;
 
       try {
-        decoded = JSON.parse(text); // only parse JSON messages
+        json = JSON.parse(text); // Only parse JSON messages
       } catch (err) {
-        continue; // skip non-JSON (like "Hello from Afiya!")
+        continue; // Skip non-JSON messages like "Hello from Afiya!"
       }
 
-      if (decoded.batchId === batchId) {
-        return decoded;
+      // Match the batchId from Hedera message
+      if (json.batchId === batchId) {
+        return {
+          success: true,
+          found: true,
+          data: {
+            batchId: json.batchId,
+            drugName: json.drugName,
+            manufacturer: json.manufacturer,
+            expiryDate: json.expiryDate,
+          },
+        };
       }
     }
 
-    return null;
+    // If loop completes without finding batchId
+    return { success: true, found: false, data: null };
   } catch (error) {
-    console.error("Error querying Hedera Mirror Node:", error.message);
-    throw error;
+    console.error("Error verifying batch on Hedera:", error);
+    return { success: false, found: false, data: null };
   }
 };
