@@ -26,7 +26,7 @@ export const registerDrug = async (req, res) => {
 
     // 3️⃣ Publish to Hedera
     const hederaReceipt = await publishMessage(hederaPayload);
-    console.log("Hedera Receipt:", hederaReceipt);
+    
 
     // 4️⃣ Return success
     return res.status(201).json({
