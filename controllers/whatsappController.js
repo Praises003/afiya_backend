@@ -183,7 +183,8 @@
 import axios from "axios";
 import Tesseract from "tesseract.js";
 import twilio from "twilio";
-import { verifyBatchHedera, verifyManufacturerHedera } from "../services/hederaService.js";
+import { verifyBatchHedera,  } from "../services/hederaService.js";
+import { verifyManufacturerHedera } from "../controllers/verifyController.js"
 
 // -----------------------------------------
 // WhatsApp Webhook Controller
