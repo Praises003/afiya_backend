@@ -241,6 +241,7 @@ async function handleCompanyVerification(message) {
     return `❌ No verified record found for *${query}*. This manufacturer may not be registered on Hedera.`;
   } else {
     const m = result.data;
+    console.log(m)
     return `✅ *Verified Manufacturer*\n\n🏭 *${m.name}*\n📜 License: ${m.licenseNumber}\n📧 ${m.email || "N/A"}\n📍 ${m.address || "N/A"}\n\nRecorded immutably on Hedera 🌍`;
   }
 }
