@@ -242,7 +242,7 @@ async function handleCompanyVerification(message) {
   } else {
     const m = result.data;
     console.log(m)
-    return `✅ *Verified Manufacturer*\n\n🏭 *${m.name}*\n📜 License: ${m.licenseNumber}\n📧 ${m.email || "N/A"}\n📍 ${m.address || "N/A"}\n\nRecorded immutably on Hedera 🌍`;
+    return `✅ *Verified Manufacturer*\n\n🏭 *${m.companyName}*\n📜 License: ${m.licenseNumber}\n📧 ${m.email || "N/A"}\n📍 ${m.address || "N/A"}\n\nRecorded immutably on Hedera 🌍`;
   }
 }
 
