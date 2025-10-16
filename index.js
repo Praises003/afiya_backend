@@ -7,7 +7,7 @@ import whatsappRoutes from "./routes/whatsappRoutes.js";
 import manufacturerRoutes from "./routes/manufacturerRoutes.js";
 import cors from "cors";
 
-const allowedOrigins = ['http://localhost:5173', 'https://afiya-phi.vercel.app'];
+const allowedOrigins = ['http://localhost:5173', 'https://afiya-yx0e.onrender.com'];
 
 dotenv.config();
 
