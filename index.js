@@ -5,12 +5,17 @@ import topicRoutes from "./routes/topicRoutes.js";
 import verifyRoutes from "./routes/verifyRoutes.js";
 import whatsappRoutes from "./routes/whatsappRoutes.js";
 import manufacturerRoutes from "./routes/manufacturerRoutes.js";
+import cors from "cors";
 
+const allowedOrigins = ['http://localhost:5173', 'https://afiya-phi.vercel.app'];
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: allowedOrigins
+}));
 app.use(express.urlencoded({ extended: true })); 
 
 app.use("/api/topic", topicRoutes);
